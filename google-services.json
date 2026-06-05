@@ -1,0 +1,125 @@
+{
+  "project_info": {
+    "project_number": "820797174914",
+    "firebase_url": "https://alamin-4666c-default-rtdb.firebaseio.com",
+    "project_id": "alamin-4666c",
+    "storage_bucket": "alamin-4666c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:820797174914:android:1cc34d172134b31b9bf09b",
+        "android_client_info": {
+          "package_name": "com.anisul.connectfirebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCS1RPPaxW8thF9r7KnIX25Hsd9a0TCgt4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:820797174914:android:46c2f1fb4b271cdd9bf09b",
+        "android_client_info": {
+          "package_name": "com.anisul.contact_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCS1RPPaxW8thF9r7KnIX25Hsd9a0TCgt4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:820797174914:android:4436031a6e8df6159bf09b",
+        "android_client_info": {
+          "package_name": "com.anisul.kiuandroidapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCS1RPPaxW8thF9r7KnIX25Hsd9a0TCgt4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:820797174914:android:b5325b377351441d9bf09b",
+        "android_client_info": {
+          "package_name": "com.eid.codeprobro.kiu_sas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCS1RPPaxW8thF9r7KnIX25Hsd9a0TCgt4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:820797174914:android:337e45dcea27578a9bf09b",
+        "android_client_info": {
+          "package_name": "com.eid.codeprobro.kiu_tas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCS1RPPaxW8thF9r7KnIX25Hsd9a0TCgt4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:820797174914:android:51816d1d042b56809bf09b",
+        "android_client_info": {
+          "package_name": "com.swapnil_sir.contact"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCS1RPPaxW8thF9r7KnIX25Hsd9a0TCgt4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F7FA"
+    tools:context="._5_student_attandance">
+
+    <LinearLayout
+        android:layout_marginTop="43sp"
+        android:layout_marginLeft="12sp"
+        android:layout_marginRight="12sp"
+        android:id="@+id/headerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_blue_dark"
+        android:orientation="vertical"
+        android:paddingTop="20dp"
+        android:paddingBottom="15dp"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/tvDisplayCourseCode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="COURSE"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvDisplaySession"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Session: --"
+            android:textColor="#E0E0E0"
+            android:textSize="14sp"
+            android:layout_marginTop="2dp" />
+    </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/calendarCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/headerLayout"
+        android:layout_margin="12dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="3dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:gravity="center">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="5dp">
+
+                <TextView
+                    android:id="@+id/btnPrevMonth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" ◀ "
+                    android:textSize="22sp"
+                    android:textColor="@android:color/holo_blue_dark"
+                    android:textStyle="bold"
+                    android:padding="10dp"
+                    android:background="?android:attr/selectableItemBackground" />
+
+                <TextView
+                    android:id="@+id/tvMonthName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="MONTH YEAR"
+                    android:textColor="@android:color/holo_blue_dark"
+                    android:textSize="16sp"
+                    android:gravity="center"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/btnNextMonth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" ▶ "
+                    android:textSize="22sp"
+                    android:textColor="@android:color/holo_blue_dark"
+                    android:textStyle="bold"
+                    android:padding="10dp"
+                    android:background="?android:attr/selectableItemBackground" />
+            </LinearLayout>
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/layoutDateStrip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <LinearLayout
+        android:id="@+id/layoutCounter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/calendarCard"
+        android:layout_marginHorizontal="12dp"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginRight="6dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="10dp"
+                android:gravity="center">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total" android:textSize="12sp"/>
+                <TextView android:id="@+id/tvTotalStudentsCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textStyle="bold" android:textSize="18sp"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="6dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="10dp"
+                android:gravity="center">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Present" android:textSize="12sp"/>
+                <TextView android:id="@+id/tvPresentStudentsCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="@android:color/holo_green_dark" android:textStyle="bold" android:textSize="18sp"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvStudentAttendanceList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layoutCounter"
+        android:layout_above="@id/btnFinishAttendance"
+        android:layout_margin="12dp" />
+
+    <Button
+        android:id="@+id/btnFinishAttendance"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="15sp"
+        android:layout_marginLeft="15sp"
+        android:layout_marginBottom="45dp"
+        android:backgroundTint="@android:color/holo_red_dark"
+        android:text="FINISH ATTENDANCE"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        app:cornerRadius="8dp"/>
+
+</RelativeLayout>
