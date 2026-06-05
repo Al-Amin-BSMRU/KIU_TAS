@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "830924650929",
+    "firebase_url": "https://myloginapp-d44de-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "myloginapp-d44de",
+    "storage_bucket": "myloginapp-d44de.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:830924650929:android:a950416d8458414dc92590",
+        "android_client_info": {
+          "package_name": "com.anisul.myloginfb"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPD1-joKuKY2oPmK6unJXq2goitIx5qGc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:830924650929:android:0b91cf980eff917cc92590",
+        "android_client_info": {
+          "package_name": "com.eid.codeprobro.kiu_tas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPD1-joKuKY2oPmK6unJXq2goitIx5qGc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

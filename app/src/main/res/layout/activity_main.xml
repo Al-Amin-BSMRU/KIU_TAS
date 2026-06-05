@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F7FA"
+    tools:context=".MainActivity"
+    android:fitsSystemWindows="true"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create Account"
+            android:textColor="#1A1C1E"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Please fill in the details to register"
+            android:textColor="#6C757D"
+            android:textSize="14sp"
+            android:layout_marginBottom="24dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/University_Name"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:background="@android:color/white"
+                android:hint="University Name"
+                android:textColor="#1A1C1E"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="12dp"
+                android:inputType="textCapCharacters"
+                android:elevation="2dp" />
+
+            <EditText
+                android:id="@+id/Name"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:background="@android:color/white"
+                android:hint="Full Name"
+                android:textColor="#1A1C1E"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="12dp"
+                android:inputType="textPersonName|textCapWords"
+                android:elevation="2dp" />
+
+            <EditText
+                android:id="@+id/id"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:background="@android:color/white"
+                android:hint="Teacher ID (12 Digits)"
+                android:textColor="#1A1C1E"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="12dp"
+                android:inputType="number"
+                android:elevation="2dp" />
+
+            <EditText
+                android:id="@+id/Email"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:background="@android:color/white"
+                android:hint="Email Address"
+                android:textColor="#1A1C1E"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="12dp"
+                android:inputType="textEmailAddress"
+                android:elevation="2dp" />
+
+            <EditText
+                android:id="@+id/Password"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:background="@android:color/white"
+                android:hint="Password"
+                android:textColor="#1A1C1E"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="12dp"
+                android:inputType="textPassword"
+                android:elevation="2dp" />
+
+            <EditText
+                android:id="@+id/Depertment"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:background="@android:color/white"
+                android:hint="Department"
+                android:textColor="#1A1C1E"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="12dp"
+                android:inputType="textCapCharacters"
+                android:elevation="2dp" />
+
+
+            <EditText
+                android:id="@+id/punchcard_no"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:background="@android:color/white"
+                android:hint="Punch Card No."
+                android:textColor="#1A1C1E"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="24dp"
+                android:inputType="text"
+                android:elevation="2dp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/Create"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:text="Create Account"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:backgroundTint="@android:color/holo_blue_dark"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="16dp"/>
+
+    </LinearLayout>
+</ScrollView>
