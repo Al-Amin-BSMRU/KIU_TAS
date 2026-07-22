@@ -1,4 +1,3 @@
-
 package com.eid.codeprobro.kiu_tas;
 
 import android.content.Intent;
@@ -18,8 +17,11 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -36,7 +38,7 @@ public class _2_Register_page extends AppCompatActivity implements View.OnClickL
     ProgressBar regProgressBar;
     private boolean isWaitingForVerification = false;
 
-    // 🎯 রিডাইরেকশনের সময় পাস করার জন্য গ্লোবাল ভেরিয়েবল
+
     private String intentName, intentId, intentEmail, intentPassword, intentDept, intentPunch, intentUni;
 
     public void success_custom_toast() {
@@ -73,8 +75,6 @@ public class _2_Register_page extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.register_page);
 
         mAuth = FirebaseAuth.getInstance();
@@ -92,7 +92,7 @@ public class _2_Register_page extends AppCompatActivity implements View.OnClickL
         registerlink.setOnClickListener(this);
         Create.setOnClickListener(this);
 
-        // pre registered and logged in system
+        // pre registered
         if (mAuth.getCurrentUser() != null) {
             if (mAuth.getCurrentUser().isEmailVerified()) {
                 Intent in = new Intent(_2_Register_page.this, _3_second_page.class);
@@ -100,7 +100,6 @@ public class _2_Register_page extends AppCompatActivity implements View.OnClickL
                 startActivity(in);
                 finish();
             } else {
-                //hide create button to get varefied in email
                 isWaitingForVerification = true;
                 Create.setVisibility(View.GONE);
                 Toast.makeText(this, "Please verify your email first.", Toast.LENGTH_LONG).show();
@@ -111,7 +110,7 @@ public class _2_Register_page extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onResume() {
         super.onResume();
-        if (isWaitingForVerification) {
+        if (isWaitingForVerification==true) {
             checkVerifiedAutomatic();
         }
     }
@@ -181,6 +180,87 @@ public class _2_Register_page extends AppCompatActivity implements View.OnClickL
         }
     }
 
+    public void startRegistrationProcess(final String uni_name, final String rawname, final String rawidd, final String email, final String password, final String depertment, final String punch) {
+
+        regProgressBar.setVisibility(View.VISIBLE);
+        Create.setEnabled(false);
+
+        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+
+                if (task.isSuccessful()) {
+                    try {
+                        String name = rawname.substring(0, 1).toUpperCase() + rawname.substring(1).toLowerCase();
+                        String idd = rawidd.substring(0, 6);
+                        String roll = rawidd.substring(rawidd.length() - 2);
+                        String nam_ses_rol = name + "_" + idd + "__" + roll;
+                        
+                        intentName = name;
+                        intentId = rawidd;
+                        intentEmail = email;
+                        intentPassword = password;
+                        intentDept = depertment;
+                        intentPunch = punch;
+                        intentUni = uni_name;
+
+                        _2_Register_Model ln = new _2_Register_Model(nam_ses_rol, punch, rawidd, rawname, uni_name, depertment, email, password);
+                        db = FirebaseDatabase.getInstance().getReference(uni_name);
+
+                        String uid = mAuth.getCurrentUser().getUid();
+                        db.child("UID_Mappings").child(uid).child("department").setValue(depertment);
+                        db.child("UID_Mappings").child(uid).child("punch").setValue(punch);
+
+                        db.child(depertment).child("teacher").child(punch).setValue(ln).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> dbTask) {
+                                if (dbTask.isSuccessful()) {
+                                    db.child("Card_Mappings").child(punch).setValue(depertment);
+                                    success_custom_toast();
+
+                                    FirebaseUser fu = mAuth.getCurrentUser();
+                                    if (fu != null) {
+                                        fu.sendEmailVerification().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                regProgressBar.setVisibility(View.GONE);
+                                                Toast.makeText(_2_Register_page.this, "Verification email sent! Check inbox.", Toast.LENGTH_LONG).show();
+                                                Create.setVisibility(View.GONE);
+                                                isWaitingForVerification = true;
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                regProgressBar.setVisibility(View.GONE);
+                                                Create.setEnabled(true);
+                                                Toast.makeText(_2_Register_page.this, "Mail failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
+                                } else {
+                                    regProgressBar.setVisibility(View.GONE);
+                                    Create.setEnabled(true);
+                                    failed_custom_toast();
+                                }
+                            }
+                        });
+
+                    } catch (Exception e) {
+                        regProgressBar.setVisibility(View.GONE);
+                        Create.setEnabled(true);
+                        Toast.makeText(_2_Register_page.this, "Data parsing error!", Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+                    }
+                } else {
+                    regProgressBar.setVisibility(View.GONE);
+                    Create.setEnabled(true);
+                    failed_custom_toast();
+                    Toast.makeText(_2_Register_page.this, "Auth Failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
     public boolean vlaidation_check(String uni, String rwnam, String rwid, String eml, String pas, String dpt, String pun) {
         if (uni.isEmpty() || rwnam.isEmpty() || rwid.isEmpty() || eml.isEmpty() || pas.isEmpty() || dpt.isEmpty() || pun.isEmpty()) {
             fillinfo();
@@ -201,79 +281,5 @@ public class _2_Register_page extends AppCompatActivity implements View.OnClickL
             return false;
         }
         return true;
-    }
-
-    public void startRegistrationProcess(String uni_name, String rawname, String rawidd, String email, String password, String depertment, String punch) {
-
-        regProgressBar.setVisibility(View.VISIBLE);
-        Create.setEnabled(true);// hold submit button
-
-        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(authTask -> {
-            if (authTask.isSuccessful()) {
-                try {
-                    String name = rawname.substring(0, 1).toUpperCase() + rawname.substring(1).toLowerCase();
-                    String idd = rawidd.substring(0, 6);
-                    String roll = rawidd.substring(rawidd.length() - 2);
-                    String nam_ses_rol = name + "_" + idd + "__" + roll;
-                    //save te iontents
-            intentName = name;
-            intentId = rawidd;
-            intentEmail = email;
-            intentPassword = password;
-            intentDept = depertment;
-            intentPunch = punch;
-            intentUni = uni_name;
-                    //database upload
-                    _2_Register_Model ln = new _2_Register_Model(nam_ses_rol, punch, rawidd, rawname, uni_name, depertment, email, password);
-                    db = FirebaseDatabase.getInstance().getReference(uni_name);
-
-            String uid = mAuth.getCurrentUser().getUid();
-            db.child("UID_Mappings").child(uid).child("department").setValue(depertment);
-            db.child("UID_Mappings").child(uid).child("punch").setValue(punch);
-
-                    db.child(depertment).child("teacher").child(punch).setValue(ln).addOnCompleteListener(dbTask -> {
-                        if (dbTask.isSuccessful()) {
-                            db.child("Card_Mappings").child(punch).setValue(depertment);
-                            success_custom_toast();
-
-                            FirebaseUser fu = mAuth.getCurrentUser();
-                            if (fu != null) {
-                                fu.sendEmailVerification().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void unused) {
-                                        regProgressBar.setVisibility(View.GONE);
-                                        Toast.makeText(_2_Register_page.this, "Verification email sent! Check inbox.", Toast.LENGTH_LONG).show();
-                                        Create.setVisibility(View.GONE); // বাটন হাইড
-                                        isWaitingForVerification = true; // ফ্ল্যাগ অ্যাক্টিভেট
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        regProgressBar.setVisibility(View.GONE);
-                                        Create.setEnabled(true);
-                                        Toast.makeText(_2_Register_page.this, "Mail failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            }
-                        } else {
-                            regProgressBar.setVisibility(View.GONE);
-                            Create.setEnabled(true);
-                            failed_custom_toast();
-                        }
-                    });
-
-                } catch (Exception e) {
-                    regProgressBar.setVisibility(View.GONE);
-                    Create.setEnabled(true);
-                    Toast.makeText(_2_Register_page.this, "Data parsing error!", Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
-                }
-            } else {
-                regProgressBar.setVisibility(View.GONE);
-                Create.setEnabled(true);
-                failed_custom_toast();
-                Toast.makeText(_2_Register_page.this, "Auth Failed: " + authTask.getException().getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
     }
 }

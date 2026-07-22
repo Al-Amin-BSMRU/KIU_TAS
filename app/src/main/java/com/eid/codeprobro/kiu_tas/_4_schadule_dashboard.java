@@ -1,3 +1,4 @@
+
 package com.eid.codeprobro.kiu_tas;
 
 import android.content.Intent;
@@ -8,12 +9,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
-import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -21,7 +18,7 @@ import java.util.Locale;
 public class _4_schadule_dashboard extends AppCompatActivity implements View.OnClickListener {
 
     EditText Course_Name, Course_Code, Total_Student, session;
-    Button starts, DbStructure;
+    Button starts_btn, Attandance_list;
     DatabaseReference mDatabase;
     String uni_name, name, idi, depertment;
 
@@ -35,10 +32,8 @@ public class _4_schadule_dashboard extends AppCompatActivity implements View.OnC
         Course_Code = findViewById(R.id.Course_Code);
         Total_Student = findViewById(R.id.Total_Student);
         session = findViewById(R.id.session);
-        starts = findViewById(R.id.starts);
-
-        // find buttons
-        DbStructure = findViewById(R.id.DbStructure);
+        starts_btn = findViewById(R.id.starts);
+        Attandance_list = findViewById(R.id.Attandance_list);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -49,15 +44,14 @@ public class _4_schadule_dashboard extends AppCompatActivity implements View.OnC
             idi = in.getStringExtra("id");
             depertment = in.getStringExtra("depertment");
         }
-        starts.setOnClickListener(this);
-        DbStructure.setOnClickListener(this);
+        starts_btn.setOnClickListener(this);
+        Attandance_list.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.starts) {
             String cName = Course_Name.getText().toString().trim();
-//            CS 321--->CS_321
             String cCode = Course_Code.getText().toString().trim().toUpperCase().replace(" ", "_");
             String sessInput = session.getText().toString().trim();
             String totalStd = Total_Student.getText().toString().trim();
@@ -67,69 +61,82 @@ public class _4_schadule_dashboard extends AppCompatActivity implements View.OnC
                 return;
             }
 
-            starts.setText("Initializing System...");
-//            set the class config status:false   no class
-            starts.setEnabled(false);
+            starts_btn.setText("Initializing System...");
+            starts_btn.setEnabled(false);
 
-            String activeUni = (uni_name != null && !uni_name.isEmpty()) ? uni_name : "OX";
+            String activeUni;
+            if (uni_name != null && !uni_name.isEmpty()) {
+                activeUni = uni_name;
+            } else {
+                activeUni = "OX";
+            }
+
             mDatabase.child(activeUni).child("Current_Class_Config").child("Course_Code").setValue(cCode);
+            mDatabase.child(activeUni).child("Current_Class_Config").child("Is_Locked").setValue(false);
+
             mDatabase.child(activeUni).child(depertment).child("courses").child(cCode).child("total_students").setValue(totalStd);
 
-            fetchFirebaseServerDate(cCode);
+            startAttendanceWithPhoneDate(cCode);
         }
-//  redirect to the firebase pages
-        if(v.getId() == R.id.DbStructure){
-            Intent in = new Intent(_4_schadule_dashboard.this, _5_database_link.class);
+
+        if (v.getId() == R.id.Attandance_list) {
+            Intent in = new Intent(_4_schadule_dashboard.this, _5_Attandance_list.class);
+
+            if (uni_name != null) {
+                in.putExtra("uni_name", uni_name);
+            } else {
+                in.putExtra("uni_name", "OX");
+            }
+
+            if (depertment != null) {
+                in.putExtra("depertment", depertment);
+            } else {
+                in.putExtra("depertment", "CSE");
+            }
+
             startActivity(in);
         }
     }
-//     set the nodes date on the firebase real date
-    private void fetchFirebaseServerDate(final String optimizedCourseCode) {
-        String activeUni = (uni_name != null && !uni_name.isEmpty()) ? uni_name : "OX";
-        final DatabaseReference timeRef = mDatabase.child(activeUni).child("Current_Class_Config").child("server_time_trigger");
-        timeRef.setValue(ServerValue.TIMESTAMP);
 
-        timeRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    Long timestamp = (Long) dataSnapshot.getValue();
-                    if (timestamp != null) {
-                        Date date = new Date(timestamp);
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                        String secureRealTimeDate = dateFormat.format(date);
+    private void startAttendanceWithPhoneDate(final String optimizedCourseCode) {
+        String activeUni;
+        if (uni_name != null && !uni_name.isEmpty()) {
+            activeUni = uni_name;
+        } else {
+            activeUni = "OX";
+        }
 
-                        timeRef.removeValue();
-                        starts.setText("START");
-                        starts.setEnabled(true);
+        String activeDept;
+        if (depertment != null && !depertment.isEmpty()) {
+            activeDept = depertment;
+        } else {
+            activeDept = "CSE";
+        }
+   /// ///featch date
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        String secureRealTimeDate = sdf.format(new Date());
 
-                        Intent in = new Intent(_4_schadule_dashboard.this, _5_student_attandance.class);
-                        in.putExtra("SERVER_DATE_KEY", secureRealTimeDate);
-                        in.putExtra("COURSE_CODE_KEY", optimizedCourseCode);
+        String sessionInput = session.getText().toString().trim();
+        if (sessionInput.length() >= 4) {
+            String firstFourDigits = sessionInput.substring(0, 4);
+            sessionInput = firstFourDigits.substring(2, 4);
+        }
 
-                        String sessionInput = session.getText().toString().trim();
-                        if (sessionInput.length() >= 4) {
-                            String firstFourDigits = sessionInput.substring(0, 4);
-                            sessionInput = firstFourDigits.substring(2, 4);
-                        }
+        DatabaseReference configRef = mDatabase.child(activeUni).child("Current_Class_Config");
+        configRef.child("Class_Session").setValue(sessionInput);
+        configRef.child("Class_Date").setValue(secureRealTimeDate);
+        configRef.child("Department").setValue(activeDept);
 
-                        mDatabase.child(activeUni).child("Current_Class_Config").child("Class_Session").setValue(sessionInput);
+        starts_btn.setText("START");
+        starts_btn.setEnabled(true);
 
-                        in.putExtra("SESSION_KEY", sessionInput);
-                        in.putExtra("depertment", depertment);
-                        in.putExtra("uni_name", activeUni);
-                        startActivity(in);
-                        finish();
-                    }
-                }
-            }
+        Intent in = new Intent(_4_schadule_dashboard.this, _5_student_attandance.class);
+        in.putExtra("SERVER_DATE_KEY", secureRealTimeDate);
+        in.putExtra("COURSE_CODE_KEY", optimizedCourseCode);
+        in.putExtra("SESSION_KEY", sessionInput);
+        in.putExtra("depertment", activeDept);
+        in.putExtra("uni_name", activeUni);
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                starts.setEnabled(true);
-                starts.setText("START");
-                Toast.makeText(_4_schadule_dashboard.this, "Database Error! Try Again.", Toast.LENGTH_SHORT).show();
-            }
-        });
+        startActivity(in);
     }
 }

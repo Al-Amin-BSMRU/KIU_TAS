@@ -98,6 +98,7 @@
                 android:textColor="@android:color/white"
                 android:layout_marginBottom="16dp"/>
 
+
             <TextView
                 android:id="@+id/loginlink"
                 android:layout_width="wrap_content"

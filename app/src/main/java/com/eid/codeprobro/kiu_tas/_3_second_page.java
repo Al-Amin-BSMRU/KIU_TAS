@@ -39,7 +39,6 @@ public class _3_second_page extends AppCompatActivity implements View.OnClickLis
         /// //hardcoded uniname
         uni_name = "OX";
 
-        // xml all getting
         University_Name = findViewById(R.id.University_Name);
         Name = findViewById(R.id.Name);
         id = findViewById(R.id.id);
@@ -56,7 +55,6 @@ public class _3_second_page extends AppCompatActivity implements View.OnClickLis
 
         Intent in = getIntent();
 
-        // intent passing and neame registration means Registration pages element
         if (in != null && (in.getStringExtra("name") != null)) {
             name = in.getStringExtra("name");
             idi = in.getStringExtra("id");
@@ -74,18 +72,18 @@ public class _3_second_page extends AppCompatActivity implements View.OnClickLis
             apunchid = in.getStringExtra("punch");
             fetchTeacherData(department, apunchid);
         }
-        //// handel the users prelogged in
         else if (mAuth.getCurrentUser() != null) {
             //getting from the firebaaaaase  dB;
             String uid = mAuth.getCurrentUser().getUid();
             DatabaseReference uidRef = FirebaseDatabase.getInstance().getReference(uni_name).child("UID_Mappings").child(uid);
 
-            //// gets dept and punch id from uid
             uidRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()) {
-                        String dept = snapshot.child("department").getValue(String.class);
+
+                        /// //.snapsot was id:78bBiiG5HWTmjA6cBGIKHbM1otz2 its  snap dept & punch
+                        String dept = snapshot.child("department").getValue(String.class); ////string class for the LAW and the punch id was string
                         String punch = snapshot.child("punch").getValue(String.class);
 
                         if (dept != null && punch != null) {
@@ -102,7 +100,6 @@ public class _3_second_page extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    // load the profiles details from the teacher bio
     private void fetchTeacherData(String dept, String punch) {
         db = FirebaseDatabase.getInstance().getReference(uni_name);
         db.child(dept).child("teacher").child(punch).addValueEventListener(new ValueEventListener() {
@@ -128,7 +125,6 @@ public class _3_second_page extends AppCompatActivity implements View.OnClickLis
         });
     }
 
-    // shows data
     private void displayUiData() {
         University_Name.setText(uni_name);
         punchcard_no.setText(apunchid);
@@ -142,7 +138,6 @@ public class _3_second_page extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.register) {
-            // go to logout popup button
             showLogoutConfirmationDialog();
         }
 if(v.getId()==R.id.logoutBtn){
@@ -193,6 +188,7 @@ if(v.getId()==R.id.logoutBtn){
         builder.setPositiveButton("Logout & Register", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                /// //////sing out logics of firebase
                 FirebaseAuth.getInstance().signOut();
                 Intent in = new Intent(_3_second_page.this, _2_Register_page.class);
                 startActivity(in);
@@ -204,7 +200,7 @@ if(v.getId()==R.id.logoutBtn){
         builder.setNeutralButton("Switch to Login", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //logout condition
+                //////////logout condition
                 FirebaseAuth.getInstance().signOut();
                 Intent in = new Intent(_3_second_page.this, _2_Login_page.class);
                 startActivity(in);
@@ -212,7 +208,6 @@ if(v.getId()==R.id.logoutBtn){
                 finish();
             }
         });
-  //cancle to canel logoyt
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

@@ -24,15 +24,17 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class _2_Login_page extends AppCompatActivity implements View.OnClickListener {
     EditText email, Password, punchcard_no, Department;
     TextView loginlink,forgetPassword;
-    Button login;
+    Button login,ResetPassword;
     DatabaseReference Dr;
     FirebaseAuth mAuth;
+    FirebaseUser fu;
     boolean boo = false;
     ProgressBar loginProgressBar;
 
@@ -45,6 +47,8 @@ public class _2_Login_page extends AppCompatActivity implements View.OnClickList
         mAuth = FirebaseAuth.getInstance();
         forgetPassword=findViewById(R.id.forgetPassword);
         forgetPassword.setOnClickListener(this);
+//        ResetPassword=findViewById(R.id.ResetPassword);
+//        ResetPassword.setOnClickListener(this);
         email = findViewById(R.id.email);
         Password = findViewById(R.id.Password);
         login = findViewById(R.id.login);
@@ -55,7 +59,6 @@ public class _2_Login_page extends AppCompatActivity implements View.OnClickList
 
         loginlink.setOnClickListener(this);
         login.setOnClickListener(this);
-
         if (mAuth.getCurrentUser() != null) {
             Intent in = new Intent(_2_Login_page.this, _3_second_page.class);
             Toast.makeText(_2_Login_page.this, "Welcome back", Toast.LENGTH_SHORT).show();
@@ -107,6 +110,7 @@ public class _2_Login_page extends AppCompatActivity implements View.OnClickList
             Intent in = new Intent(_2_Login_page.this, _2_Register_page.class);
             startActivity(in);
         }
+
         if (v.getId() == R.id.forgetPassword) {
             EditText et = new EditText(v.getContext());  //creating edit text
             AlertDialog.Builder ab = new AlertDialog.Builder(v.getContext());   //initializiong alert box
@@ -136,7 +140,7 @@ public class _2_Login_page extends AppCompatActivity implements View.OnClickList
                     });
                 }
             });
-            ab.create().show();   //creating the alert box and showing
+            ab.create().show();
         }
         if (v.getId() == R.id.login) {
             String eml = email.getText().toString().trim();
@@ -167,7 +171,9 @@ public class _2_Login_page extends AppCompatActivity implements View.OnClickList
                     DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference("OX").child("UID_Mappings").child(uid);
                     dbRef.child("department").setValue(dep);
                     dbRef.child("punch").setValue(pun);
-
+                    //update the emails passwords
+                DatabaseReference updatepass=FirebaseDatabase.getInstance().getReference("OX");
+                updatepass.child(dep).child("teacher").child(pun).child("password").setValue(pass);
                     success_custom_toast();
                     Toast.makeText(_2_Login_page.this, "successfully Loged in ", Toast.LENGTH_SHORT).show();
 

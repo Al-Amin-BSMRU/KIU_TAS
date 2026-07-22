@@ -1,5 +1,7 @@
 package com.eid.codeprobro.kiu_tas;
 
+import static java.security.AccessController.getContext;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,14 +16,16 @@ public class _5_StudentAdapter extends RecyclerView.Adapter<_5_StudentAdapter.St
     private List<_5_StudentModel> studentList;
 
     public _5_StudentAdapter(List<_5_StudentModel> studentList) {
+
         this.studentList = studentList;
     }
 
     @NonNull
     @Override
     public StudentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_student, parent, false);
-        return new StudentViewHolder(view);
+       LayoutInflater lf=LayoutInflater.from(parent.getContext());
+        View v = lf.inflate(R.layout.item_student, parent, false);
+        return new StudentViewHolder(v);
     }
 
     @Override
@@ -39,6 +43,7 @@ public class _5_StudentAdapter extends RecyclerView.Adapter<_5_StudentAdapter.St
 
     @Override
     public int getItemCount() {
+
         return studentList.size();
     }
 

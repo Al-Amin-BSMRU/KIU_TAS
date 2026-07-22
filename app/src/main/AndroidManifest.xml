@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="._5_database_link"
+            android:name="._5_Attandance_list"
             android:exported="false" />
         <activity
             android:name="._4_schadule_dashboard"
