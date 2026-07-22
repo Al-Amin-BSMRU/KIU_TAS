@@ -163,7 +163,7 @@
             <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0"/>
 
             <Button
-                android:id="@+id/DbStructure"
+                android:id="@+id/Attandance_list"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
                 android:layout_marginTop="20dp"
@@ -171,7 +171,7 @@
                 android:textColor="@android:color/white"
                 android:textStyle="bold"
                 android:textSize="16sp"
-                android:text="Database Structure" />
+                android:text="Attandance list" />
         </LinearLayout>
 
     </LinearLayout>

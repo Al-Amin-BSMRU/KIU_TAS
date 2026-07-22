@@ -1,5 +1,7 @@
+
 package com.eid.codeprobro.kiu_tas;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -26,12 +28,14 @@ import java.util.Map;
 
 public class _5_student_attandance extends AppCompatActivity {
 
+    // UI Elements
     TextView tvDisplayCourseCode, tvDisplaySession, tvMonthName, tvTotalStudentsCount, tvPresentStudentsCount;
     TextView btnPrevMonth, btnNextMonth;
     Button btnFinishAttendance;
     LinearLayout layoutDateStrip;
     RecyclerView rvStudentAttendanceList;
 
+    // Data Variables
     String receivedServerDate, selectedDate;
     String courseCode, sessionText;
     String uni_name, depertment;
@@ -40,18 +44,32 @@ public class _5_student_attandance extends AppCompatActivity {
     ValueEventListener attendanceListener;
     DatabaseReference attendanceRef;
 
-    _5_StudentAdapter adapter;
-    List<_5_StudentModel> studentList = new ArrayList<>();
-    Map<String,_5_StudentModel> allSessionStudentsMap = new HashMap<>();
+    DatabaseReference configRef;
+    ValueEventListener configListener;
 
-    // getting the current dates for the apps
+    _5_StudentAdapter adapter;
+    List<_5_StudentModel> studentList = new ArrayList<_5_StudentModel>();
+    Map<String, _5_StudentModel> allSessionStudentsMap = new HashMap<>();
+
     Calendar currentCalendarInstance = Calendar.getInstance();
 
     @Override
-    protected void onCreate(Bundle Bundle) {
-        super.onCreate(Bundle);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.student_attandance);
 
+        initUI();
+        setupIntentData();
+        setupCalendarButtons();
+
+        refreshCalendarAndStrip();
+        loadStudentsAndStartTracking();
+        updateClassEndTimeNode();
+
+        startArduinoLockMonitoring();
+    }
+
+    private void initUI() {
         tvDisplayCourseCode = findViewById(R.id.tvDisplayCourseCode);
         tvDisplaySession = findViewById(R.id.tvDisplaySession);
         tvMonthName = findViewById(R.id.tvMonthName);
@@ -59,18 +77,18 @@ public class _5_student_attandance extends AppCompatActivity {
         tvPresentStudentsCount = findViewById(R.id.tvPresentStudentsCount);
         btnFinishAttendance = findViewById(R.id.btnFinishAttendance);
         layoutDateStrip = findViewById(R.id.layoutDateStrip);
-        rvStudentAttendanceList = findViewById(R.id.rvStudentAttendanceList);
-
-        // initializing previous and recent buttons
         btnPrevMonth = findViewById(R.id.btnPrevMonth);
         btnNextMonth = findViewById(R.id.btnNextMonth);
 
+        rvStudentAttendanceList = findViewById(R.id.rvStudentAttendanceList);
         rvStudentAttendanceList.setLayoutManager(new LinearLayoutManager(this));
         adapter = new _5_StudentAdapter(studentList);
         rvStudentAttendanceList.setAdapter(adapter);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
+    }
 
+    private void setupIntentData() {
         Intent in = getIntent();
         if (in != null) {
             uni_name = in.getStringExtra("uni_name");
@@ -84,7 +102,6 @@ public class _5_student_attandance extends AppCompatActivity {
                 Date parsedDate = inputFormat.parse(rawDate);
                 if (parsedDate != null) {
                     receivedServerDate = inputFormat.format(parsedDate);
-                    // global calander is setting as the recent dates
                     currentCalendarInstance.setTime(parsedDate);
                 } else {
                     receivedServerDate = rawDate;
@@ -93,26 +110,28 @@ public class _5_student_attandance extends AppCompatActivity {
                 receivedServerDate = rawDate;
             }
 
-            if (uni_name == null || uni_name.isEmpty()) uni_name = "OX";
-            if (depertment == null || depertment.isEmpty()) depertment = "CSE";
-
+            if (uni_name == null || uni_name.isEmpty())
+            {
+                uni_name = "OX";
+            }
+            if (depertment == null || depertment.isEmpty()) {
+                depertment = "CSE";
+            }
             selectedDate = receivedServerDate;
             if (courseCode != null) tvDisplayCourseCode.setText(courseCode.replace("_", " "));
             tvDisplaySession.setText("Session: " + sessionText);
         }
+    }
 
-        // recent month is loading
-        refreshCalendarAndStrip();
-        loadStudentsAndStartTracking();
-        updateClassEndTimeNode();
-
-        // previous month going
-        btnPrevMonth.setOnClickListener(v -> {
-            currentCalendarInstance.add(Calendar.MONTH, -1);
-            refreshCalendarAndStrip();
+    private void setupCalendarButtons() {
+        btnPrevMonth.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                currentCalendarInstance.add(Calendar.MONTH, -1);
+                refreshCalendarAndStrip();
+            }
         });
 
-        // next month going
         btnNextMonth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,36 +140,67 @@ public class _5_student_attandance extends AppCompatActivity {
             }
         });
 
-
-
-        btnFinishAttendance.setOnClickListener(v -> {
-            new AlertDialog.Builder(_5_student_attandance.this)
-                    .setTitle("Finish Class?")
-                    .setMessage("Are you sure you want to close attendance for this course?")
-                    .setPositiveButton("Yes", (dialog, which) -> {
-                        DatabaseReference configRef = mDatabase.child(uni_name).child("Current_Class_Config");
-                        configRef.child("Course_Code").setValue("Finished");
-                        configRef.child("Is_Locked").setValue(true);
-                        finish();
-                    })
-                    .setNegativeButton("No", null)
-                    .show();
+        btnFinishAttendance.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showFinishAttendanceDialog();
+            }
         });
+    }
+
+    private void showFinishAttendanceDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Finish Class?");
+        builder.setMessage("Are you sure you want to close attendance?");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                DatabaseReference configRef = mDatabase.child(uni_name).child("Current_Class_Config");
+                configRef.child("Course_Code").setValue("Finished");
+                configRef.child("Is_Locked").setValue(true);
+                finish();
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.show();
     }
 
     private void updateClassEndTimeNode() {
         if (courseCode != null && !courseCode.isEmpty()) {
             DatabaseReference configRef = mDatabase.child(uni_name).child("Current_Class_Config");
-            String tim = "2";
-            configRef.child("Duration_Minutes").setValue(tim);
-            Toast.makeText(this, "The attendance time is set for " + tim + " min", Toast.LENGTH_SHORT).show();
+            configRef.child("Duration_Minutes").setValue("2");
             configRef.child("Is_Locked").setValue(false);
+            Toast.makeText(this, "Attendance time set for 2 mins", Toast.LENGTH_SHORT).show();
         }
     }
 
-    // dynamiclly change the months and generate the each months :1 to 30, 31 ,29
+    private void startArduinoLockMonitoring() {
+        configRef = mDatabase.child(uni_name).child("Current_Class_Config").child("Course_Code");
+
+        configListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String status = snapshot.getValue(String.class);
+                    if (status != null && status.equals("Finished")) {
+                        Toast.makeText(_5_student_attandance.this, "Attendance Closed (Timer Finished)!", Toast.LENGTH_LONG).show();
+                        finish();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        };
+        configRef.addValueEventListener(configListener);
+    }
+
     private void refreshCalendarAndStrip() {
-        // মাসের হেডার টেক্সট সেট (যেমন: JANUARY 2026)
         SimpleDateFormat formatter = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
         tvMonthName.setText(formatter.format(currentCalendarInstance.getTime()).toUpperCase());
 
@@ -169,19 +219,20 @@ public class _5_student_attandance extends AppCompatActivity {
             tvDateButton.setGravity(Gravity.CENTER);
             tvDateButton.setTextSize(16);
 
-            // yyyy-MM-dd
             final String targetDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", currentYear, currentMonth + 1, i);
             updateButtonVisuals(tvDateButton, targetDate.equals(selectedDate));
             tvDateButton.setTag(targetDate);
 
-            tvDateButton.setOnClickListener(v -> {
-                selectedDate = (String) v.getTag();
-                for (int j = 0; j < layoutDateStrip.getChildCount(); j++) {
-                    TextView btn = (TextView) layoutDateStrip.getChildAt(j);
-                    updateButtonVisuals(btn, btn.getTag().equals(selectedDate));
+            tvDateButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    selectedDate = (String) v.getTag();
+                    for (int j = 0; j < layoutDateStrip.getChildCount(); j++) {
+                        TextView btn = (TextView) layoutDateStrip.getChildAt(j);
+                        updateButtonVisuals(btn, btn.getTag().equals(selectedDate));
+                    }
+                    startAttendanceTracking();
                 }
-
-                startAttendanceTracking();
             });
             layoutDateStrip.addView(tvDateButton);
         }
@@ -203,48 +254,58 @@ public class _5_student_attandance extends AppCompatActivity {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         allSessionStudentsMap.clear();
-                        int validStudentCountForThisSession = 0;
+                        int validStudentCount = 0;
 
-                        String targetSessionClean = (sessionText != null) ? sessionText.trim() : "";
-                        if (targetSessionClean.length() >= 4) {
-                            targetSessionClean = targetSessionClean.substring(targetSessionClean.length() - 2);
+                        String targetSession = "";
+                        if (sessionText != null && sessionText.length() >= 2) {
+                            targetSession = sessionText.substring(sessionText.length() - 2);
                         }
 
                         for (DataSnapshot studentData : snapshot.getChildren()) {
-                            Object sessionObj = studentData.child("session").getValue();
-                            String dbSession = sessionObj != null ? String.valueOf(sessionObj).trim() : "";
+                            Object sessValue = studentData.child("session").getValue();
+                            String dbSession;
 
-                            if (!dbSession.isEmpty() && !targetSessionClean.isEmpty() && dbSession.equals(targetSessionClean)) {
+                            if (sessValue != null) {
+                                dbSession = String.valueOf(sessValue).trim();
+                            } else {
+                                dbSession = "";
+                            }
+                            if (!dbSession.isEmpty() && dbSession.endsWith(targetSession)) {
 
-                                Object punchIdObj = studentData.child("punch_id").getValue();
-                                if (punchIdObj == null) punchIdObj = studentData.child("puid").getValue();
-                                if (punchIdObj == null) punchIdObj = studentData.child("punch").getValue();
+                                String punchKey = "";
 
-                                String punchKey = (punchIdObj != null) ? String.valueOf(punchIdObj) : studentData.getKey();
+                                if (studentData.child("puid").exists()) {
+                                    punchKey = String.valueOf(studentData.child("puid").getValue());
+                                }
+                                else if (studentData.child("punch").exists()) {
+                                    punchKey = String.valueOf(studentData.child("punch").getValue());
+                                }
+                                else if (studentData.child("punch_id").exists()) {
+                                    punchKey = String.valueOf(studentData.child("punch_id").getValue());
+                                }
+                                else {
+                                    punchKey = studentData.getKey();
+                                }
 
-                                Object idObj = studentData.child("id").getValue();
-                                String displayId = idObj != null ? String.valueOf(idObj) : studentData.getKey();
-
-                                Object nameObj = studentData.child("name").getValue();
-                                if (nameObj == null) nameObj = studentData.child("namid").getValue();
-                                String name = nameObj != null ? String.valueOf(nameObj) : "Unknown Student";
+                                String displayId = String.valueOf(studentData.child("id").getValue());
+                                String name = String.valueOf(studentData.child("name").getValue());
 
                                 if (name.contains("_")) {
                                     name = name.split("_")[0];
                                 }
 
                                 allSessionStudentsMap.put(punchKey, new _5_StudentModel(displayId, name));
-                                validStudentCountForThisSession++;
+                                validStudentCount++;
                             }
                         }
 
-                        tvTotalStudentsCount.setText(String.valueOf(validStudentCountForThisSession));
+                        tvTotalStudentsCount.setText(String.valueOf(validStudentCount));
                         startAttendanceTracking();
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(_5_student_attandance.this, "Failed to load students: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(_5_student_attandance.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -272,6 +333,7 @@ public class _5_student_attandance extends AppCompatActivity {
                         String punchId = presentStudentSnap.getKey();
 
                         if (punchId != null && allSessionStudentsMap.containsKey(punchId)) {
+
                             _5_StudentModel s = allSessionStudentsMap.get(punchId);
                             if (s != null) {
                                 s.setPresent(true);
@@ -296,6 +358,9 @@ public class _5_student_attandance extends AppCompatActivity {
         super.onDestroy();
         if (attendanceRef != null && attendanceListener != null) {
             attendanceRef.removeEventListener(attendanceListener);
+        }
+        if (configRef != null && configListener != null) {
+            configRef.removeEventListener(configListener);
         }
     }
 }

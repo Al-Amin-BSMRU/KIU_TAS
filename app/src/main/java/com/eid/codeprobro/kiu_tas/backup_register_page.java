@@ -204,7 +204,6 @@ public class backup_register_page {
 //
 //                    db.child(depertment).child("teacher").child(punch).setValue(ln).addOnCompleteListener(dbTask -> {
 //
-//                        // 🎯 ডাটাবেস প্রসেস শেষ (ProgressBar হাইড ও বাটন এনাবল)
 //                        regProgressBar.setVisibility(View.GONE);
 //                        Create.setEnabled(true);
 //                        FirebaseUser fu=mAuth.getCurrentUser();
@@ -215,7 +214,7 @@ public class backup_register_page {
 //                                    regProgressBar.setVisibility(View.GONE);
 //                                    Toast.makeText(_2_Register_page.this, "Verification email sent! Check inbox.", Toast.LENGTH_LONG).show();
 //                                    Create.setVisibility(View.GONE);
-//                                    isWaitingForVerification = true; // ফ্ল্যাগ ট্রু করা হলো
+//                                    isWaitingForVerification = true;
 //
 //                                }
 //                            }).addOnFailureListener(new OnFailureListener() {
@@ -262,7 +261,6 @@ public class backup_register_page {
 //                    e.printStackTrace();
 //                }
 //            } else {
-//                // 🎯 অথেনটিকেশন ফেইল হলে প্রোগ্রেস বার বন্ধ করা হলো
 //                regProgressBar.setVisibility(View.GONE);
 //                Create.setEnabled(true);
 //                failed_custom_toast();
